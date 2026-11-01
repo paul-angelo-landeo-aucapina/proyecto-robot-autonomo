@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Autonomous Patrol & Obstacle Negotiation Routine for Robot Sumoso
+Autonomous Patrol & Obstacle Negotiation Routine for Proyecto Robot Autónomo
 Demonstrates Option D differential kinematics:
 - Forward advance & obstacle push
 - Smooth deceleration and reverse
@@ -35,7 +35,7 @@ def send_cmd_vel(linear_x: float, angular_z: float):
 
 def main():
     print("=" * 60)
-    print("  ROBOT SUMOSO - RUTINA AUTÓNOMA DE PATRULLAJE Y GIRO EN SITIO")
+    print("  PROYECTO ROBOT AUTÓNOMO - RUTINA AUTÓNOMA DE PATRULLAJE")
     print("  Arquitectura: 2WD 37D Traseras + 2 Omniwheels Delanteras")
     print("=" * 60)
     

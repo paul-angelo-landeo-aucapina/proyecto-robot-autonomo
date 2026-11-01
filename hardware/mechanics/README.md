@@ -1,12 +1,12 @@
-# Subconjunto Mecánico, Estructural y Carrocería — Robot Sumoso
+# Subconjunto Mecánico, Estructural y Carrocería — Proyecto Robot Autónomo
 
-Este directorio contiene la totalidad del paquete de ingeniería mecánica, diseño paramétrico 3D, planos técnicos de fabricación CNC, modelos de simulación física y cálculos estructurales del **Robot Sumoso**, un robot móvil autónomo de asistencia y transporte en interiores.
+Este directorio contiene el paquete completo de ingeniería mecánica, diseño paramétrico 3D, planos de fabricación CNC, modelos de simulación física en Gazebo y cálculos estructurales analíticos del **Proyecto Robot Autónomo (`proyecto-robot-autonomo`)**, un robot móvil de asistencia y transporte en interiores.
 
 ---
 
 ## 1. Resumen de Especificaciones de Ingeniería
 
-- **Configuración Cinemática:** Tracción diferencial pura (2WD con motores DC 37D con encoder en eje trasero $X = 70.0\text{ mm}$) y 2 ruedas omnidireccionales dobles en eje frontal ($X = 330.0\text{ mm}$, coplanares con eje motriz a $Z = 40.0\text{ mm}$).
+- **Configuración Cinemática:** Tracción diferencial pura (2WD con motores DC 37D con reductora metálica y encoder en eje trasero $X = 70.0\text{ mm}$) y 2 ruedas omnidireccionales dobles en eje frontal ($X = 330.0\text{ mm}$, coplanares con eje motriz a $Z = 40.0\text{ mm}$).
 - **Geometría Cuadrada:** Wheelbase $L_{wb} = 260.0\text{ mm}$, Ancho de vía $W_{track} = 260.0\text{ mm}$ ($\text{Ratio } L/W = 1.00$, rotación sobre su eje sin arrastre lateral).
 - **Dimensiones Exteriores:** $400.0\text{ mm}$ (Largo) $\times 300.0\text{ mm}$ (Ancho) $\times 133.5\text{ mm}$ (Altura total).
 - **Despeje Libre al Suelo (Ground Clearance):** **$10.0\text{ mm}$** bajo la placa base inferior, garantizando franqueamiento de juntas, umbrales y alfombras.
@@ -20,7 +20,7 @@ Este directorio contiene la totalidad del paquete de ingeniería mecánica, dise
 
 ## 2. Estructura de Directorios
 
-```
+```text
 hardware/mechanics/
 ├── CADs/
 │   ├── scad/              # Modelos paramétricos 3D OpenSCAD (.scad)
@@ -38,7 +38,7 @@ hardware/mechanics/
 │   │   ├── soporte_bandeja_flotante.stl    # Brazo voladizo de bandeja de carga
 │   │   ├── carcasa_faldon_base.stl         # Faldón inferior con arcos y pasaruedas
 │   │   └── carcasa_tapa_superior.stl       # Tapa desmontable con laberinto perimetral
-│   └── drawings_2d/       # Planos técnicos de corte y mecanizado 2D (AutoCAD 2018)
+│   └── drawings_2d/       # Planos técnicos de corte y mecanizado 2D (AutoCAD / LibreCAD)
 │       ├── ChasisBaseRobotSumo.dwg / .dxf           # Placa base y rieles de aluminio
 │       ├── PlacaIntermediaRobotSumo.dwg / .dxf      # Placa intermedia y pasacables
 │       └── CarroceriaCerramientoSuperior.dwg / .dxf # Carrocería, faldón y rejillas
@@ -49,7 +49,7 @@ hardware/mechanics/
 │   ├── sumo_arena.sdf     # Pista de pruebas con piso texturizado
 │   ├── autonomous_patrol.py # Demostración autónoma con control cinemático
 │   ├── launch_sim_gui.sh  # Script de lanzamiento con interfaz gráfica
-│   └── GUIA_SIMULACION_GAZEBO.md # Manual de uso y comandos de simulación
+│   └── GUIA_SIMULACION_GAZEBO.md # Manual operativo y comandos de simulación
 ├── docs/                  # Documentación técnica exhaustiva e imágenes
 │   ├── MEMORIA_TECNICA.md # Memoria completa de diseño (15 módulos analíticos)
 │   └── images/            # Renders e infografías de verificación de ingeniería
@@ -58,23 +58,57 @@ hardware/mechanics/
 
 ---
 
-## 3. Instrucciones de Uso y Visualización
+## 3. Instrucciones de Uso y Apertura de Documentos
 
 ### A. Inspección del Modelo 3D Paramétrico (OpenSCAD)
-Abre [`CADs/scad/ensamblaje_base_completa.scad`](CADs/scad/ensamblaje_base_completa.scad) en OpenSCAD. En el panel lateral derecho (**Customizer**) podés alternar instantáneamente entre los siguientes modos:
-- `completo`: Robot completo con carrocería exterior hermética, tapa desmontable y bandeja superior.
-- `sin_tapa`: Tapa superior removida para inspeccionar la placa intermedia, el arnés eléctrico segregado y la batería.
-- `solo_base`: Chasis rodante desnudo (motores, ruedas, rieles de aluminio y standoffs) sin la carrocería.
-- `transparente`: Carrocería en modo translúcido para evaluar holguras cinemáticas e interferencias internas.
+Para visualizar o parametrizar el chasis y la carrocería:
+1. Abrir [OpenSCAD](https://openscad.org/).
+2. Cargar el ensamble maestro: [`CADs/scad/ensamblaje_base_completa.scad`](CADs/scad/ensamblaje_base_completa.scad).
+3. Habilitar la ventana del **Customizer** en el menú superior (**Window $\rightarrow$ Customizer**).
+4. En el selector desplegable `modo_vista`, alternar entre las siguientes opciones:
+   - `completo`: Robot completo con carrocería exterior hermética, tapa desmontable y bandeja superior.
+   - `sin_tapa`: Tapa superior removida para inspeccionar la placa intermedia, el arnés eléctrico segregado y la batería.
+   - `solo_base`: Chasis rodante desnudo (motores, ruedas, rieles de aluminio y standoffs) sin la carrocería.
+   - `transparente`: Carrocería en modo translúcido para evaluar holguras cinemáticas e interferencias internas.
 
-### B. Ejecución de la Simulación en Gazebo Harmonic
-Para validar la física de tracción diferencial, holguras al suelo y respuesta de los sensores:
+---
+
+### B. Apertura y Edición de Planos Técnicos 2D (Corte CNC y Láser)
+Los archivos ubicados en [`CADs/drawings_2d/`](CADs/drawings_2d/) están normalizados bajo formato DXF y DWG (compatibles con AutoCAD 2018+, LibreCAD y QCAD):
+- **Software recomendado:** [LibreCAD](https://librecad.org/) (código abierto) o [QCAD](https://www.qcad.org/).
+- **Procedimiento de mecanizado:**
+  - `ChasisBaseRobotSumo.dxf`: Corte de la placa base en Policarbonato (PC) de $6.0\text{ mm}$ con fresa de $\varnothing 3.0\text{ mm}$ y chaflanes en orificios avellanados para pernos M3.
+  - `PlacaIntermediaRobotSumo.dxf`: Corte de la bandeja de segregación electrónica en Policarbonato de $3.0\text{ mm}$ o acrílico antiestático.
+  - `CarroceriaCerramientoSuperior.dxf`: Patrón de desarrollo para plegado o referencia dimensional de carcasas termoformadas.
+
+---
+
+### C. Manufactura Aditiva (Impresión 3D de Archivos STL)
+Todas las piezas en [`CADs/stl/`](CADs/stl/) son sólidas cerradas (100% 2-manifold / *watertight*):
+- **Laminadores recomendados:** PrusaSlicer, OrcaSlicer, Bambu Studio o Cura.
+- **Parámetros de impresión certificados:**
+  - **Soportes de Motor y Brackets (`bracket_motor_37d.stl`, `bracket_omniwheel_65mm.stl`):**
+    - Material: **PETG** o **PA-CF** (Nylon con fibra de carbono) para resistir torsión motriz ($0.54\text{ N}\cdot\text{m}$).
+    - Perímetros de pared: 5 (mínimo $2.0\text{ mm}$).
+    - Relleno: $40\%-50\%$ Giroide o Cúbico.
+  - **Puente de Celda de Carga (`puente_celda_carga.stl`):**
+    - Material: PETG o PC. Relleno $60\%$ para garantizar rigidez flexional bajo carga de 5 kg.
+  - **Carrocería y Tapa (`carcasa_faldon_base.stl`, `carcasa_tapa_superior.stl`):**
+    - Material: PETG o PLA+. Altura de capa $0.20\text{ mm}$, 3 perímetros, relleno $20\%$.
+
+---
+
+### D. Ejecución de la Simulación Física en Gazebo Harmonic
+Para validar la dinámica diferencial, despeje al suelo y respuesta de sensores:
 ```bash
 cd simulation
 ./launch_sim_gui.sh
 ```
+Para consultar los comandos de teleoperación manual por tópicos `/cmd_vel` y rutinas autónomas, consultar la [Guía Operativa de Simulación en Gazebo](simulation/GUIA_SIMULACION_GAZEBO.md).
 
-### C. Inspección de Cálculos de Ingeniería (Jupyter Notebook)
+---
+
+### E. Inspección de Cálculos Analíticos (Jupyter Notebook)
 Para auditar las ecuaciones analíticas de flexión, torsión, tiro térmico, pesaje y caídas de tensión eléctrica (Módulos 0 a 15):
 ```bash
 cd calculations

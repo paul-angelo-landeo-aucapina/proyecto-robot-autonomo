@@ -208,10 +208,10 @@
       </link>
     </model>
 
-    <!-- Include Robot Sumoso -->
+    <!-- Include Robot Autónomo -->
     <include>
       <name>robot_sumoso</name>
-      <uri>/home/paul/Documents/workfiles/RobotSumoso/robot_sumoso.sdf</uri>
+      <uri>robot_sumoso.sdf</uri>
       <pose>0 0 0.0325 0 0 0</pose>
     </include>
 

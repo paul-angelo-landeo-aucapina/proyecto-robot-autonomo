@@ -238,8 +238,8 @@ Para validar la cinemática diferencial, la respuesta dinámica, el comportamien
 - **Skill de Simulación:** `/home/paul/.agents/skills/gazebo-simulation/SKILL.md` (y su enlace simbólico en `/home/paul/.gemini/config/skills/gazebo-simulation/`) con directrices para modelado URDF/SDF, simplificación de colisiones, plugins cinemáticos y ciclo de vida de procesos.
 - **Modelo SDF del Robot:** [`robot_sumoso.sdf`](../simulation/robot_sumoso.sdf) validado con `gz sdf -k` y verificado en masa ($3.40\text{ kg}$), centro de masas ($X = +14.6\text{ mm}$, $Y = 0.0\text{ mm}$, $Z = 22.9\text{ mm}$) e inercia ($I_{xx} = 0.0300, I_{yy} = 0.0458, I_{zz} = 0.0710\text{ kg}\cdot\text{m}^2$).
 - **Plugins de Simulación:** `gz::sim::systems::DiffDrive` (control por `/cmd_vel` y odometría en `/odometry`), articulación de celda de carga prismática con rigidez elástica, y ruedas omnidireccionales con baja fricción lateral ($\mu_2 = 0.02$).
-- **Mundo de Competición con Obstáculos:** [`sumo_arena.sdf`](file:///home/paul/Documents/workfiles/RobotSumoso/sumo_arena.sdf) con Dohyo circular ($\varnothing 2.2\text{ m}$), obstáculos dinámicos (cilindro de $1.2\text{ kg}$ y cubo de $1.8\text{ kg}$) y paredes perimetrales de contención.
-- **Rutina Autónoma de Patrullaje:** [`autonomous_patrol.py`](file:///home/paul/Documents/workfiles/RobotSumoso/autonomous_patrol.py) ejecuta ciclos continuos de avance, empuje de obstáculos, retroceso y giros en radio cero (spin puro $180^\circ$ a $1.8\text{ rad/s}$).
+- **Mundo de Competición con Obstáculos:** [`sumo_arena.sdf`](../simulation/sumo_arena.sdf) con Dohyo circular ($\varnothing 2.2\text{ m}$), obstáculos dinámicos (cilindro de $1.2\text{ kg}$ y cubo de $1.8\text{ kg}$) y paredes perimetrales de contención.
+- **Rutina Autónoma de Patrullaje:** [`autonomous_patrol.py`](../simulation/autonomous_patrol.py) ejecuta ciclos continuos de avance, empuje de obstáculos, retroceso y giros en radio cero (spin puro $180^\circ$ a $1.8\text{ rad/s}$).
 - **Script de Lanzamiento Gráfico:** [`launch_sim_gui.sh`](../simulation/launch_sim_gui.sh) para arranque directo con un solo comando.
 
 ---

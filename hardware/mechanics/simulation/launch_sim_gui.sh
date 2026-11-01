@@ -1,7 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# Script de Lanzamiento 3D para Robot Sumoso en Gazebo Harmonic
-# Utiliza la GPU NVIDIA GeForce RTX 3050 bajo Arch Linux + Hyprland / Xwayland
+# Script de Lanzamiento 3D — Proyecto Robot Autónomo en Gazebo Harmonic
 # ==============================================================================
 
 set -e
@@ -9,13 +8,16 @@ set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORLD="$DIR/sumo_arena.sdf"
 
+# Exportar la ruta del directorio local para que Gazebo resuelva modelos SDF y mallas
+export GZ_SIM_RESOURCE_PATH="$DIR:$GZ_SIM_RESOURCE_PATH"
+
 echo "======================================================================"
-echo "  INICIANDO SIMULACIÓN 3D: ROBOT SUMOSO EN GAZEBO HARMONIC"
-echo "  GPU: NVIDIA GeForce RTX 3050 (Aceleración Hardware Activa)"
-echo "  Arena: $WORLD"
+echo "  INICIANDO SIMULACIÓN 3D: PROYECTO ROBOT AUTÓNOMO EN GAZEBO HARMONIC"
+echo "  Directorio de Simulación: $DIR"
+echo "  Mundo: $WORLD"
 echo "======================================================================"
 
-# Verificar xhost si estuviera disponible para sockets X11
+# Habilitar xhost si estuviera disponible para sockets X11 / Xwayland
 if command -v xhost &> /dev/null; then
     xhost +local:root 2>/dev/null || true
 fi
