@@ -1,0 +1,92 @@
+\documentclass[11pt,a4paper]{article}
+
+% --- Paquetes Esenciales ---
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{caption}
+
+% --- Colores Corporativos / Académicos ---
+\definecolor{primary}{RGB}{24, 76, 120}
+\definecolor{secondary}{RGB}{46, 117, 182}
+\definecolor{accent}{RGB}{217, 83, 79}
+\definecolor{darkgray}{RGB}{50, 50, 50}
+\definecolor{lightgray}{RGB}{245, 247, 250}
+\definecolor{boxborder}{RGB}{200, 210, 220}
+
+% --- Configuración de Enlaces ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primary,
+    citecolor=secondary,
+    urlcolor=primary
+}
+
+\begin{document}
+
+% --- Portada / Cabecera ---
+\begin{center}
+    {\LARGE \textbf{\color{primary} Robot Móvil Autónomo con Estabilización Inercial y Evasión Reactiva de Obstáculos}}\\[0.3cm]
+    \rule{\textwidth}{1.2pt}
+\end{center}
+
+\vspace{0.3cm}
+
+% --- 1. ¿Qué hará el proyecto? ---
+\section{Descripción del Proyecto}
+
+El proyecto consiste en el diseño, desarrollo e integración de una plataforma robótica móvil autónoma de configuración diferencial (2WD + rueda loca posterior) orientada a la navegación en interiores. El robot opera de forma completamente autónoma en tiempo real, ejecutando tareas de exploración de entornos, mantenimiento de rumbo y evasión dinámica de obstáculos.
+
+\subsection{Objetivos Operativos y Funcionales}
+\begin{enumerate}
+    \item \textbf{Desplazamiento Rectilíneo Estabilizado (\textit{Heading Hold}):} Los motores reductores de bajo costo (tipo TT amarillos) presentan asimetrías mecánicas que desvían al vehículo. El robot emplea el giróscopo del sensor inercial \textbf{MPU6050 (eje Z)} para computar el error angular acumulado respecto al rumbo deseado y corregir el PWM diferencial en tiempo real mediante un controlador Proporcional-Integral (PI), garantizando trayectorias rectas precisas sin requerir encoders mecánicos de rueda.
+    \item \textbf{Percepción Frontal y Evasión Reactiva:} Mediante dos sensores de tiempo de vuelo \textbf{VL53L0X (ToF)}, el robot mide la distancia milimétrica hacia obstáculos en los sectores frontales izquierdo y derecho. Si un obstáculo ingresa en la zona de frenado ($< 180\text{ mm}$), la máquina de estados detiene la marcha, evalúa cuál lado tiene mayor espacio libre, y ejecuta un giro pivote calibrado sobre su propio eje (ej. $\pm 90^\circ$) monitoreado por el giróscopo antes de reanudar el avance.
+    \item \textbf{Parada de Emergencia y Retroceso de Seguridad:} En caso de detectar una barrera crítica imprevista a menos de $80\text{ mm}$, el robot ejecuta un frenado electrónico activo (\textit{active braking}) por puente H, retrocede $250\text{ ms}$ para liberar el cono de detección y rota en búsqueda de un corredor despejado.
+    \item \textbf{Telemetría y Control Bidireccional:} El microcontrolador emite diagnósticos continuos a $50\text{ Hz}$ por puerto serial (y expandible a WebSockets/Wi-Fi nativo del ESP32), informando el ángulo de orientación, velocidad angular, lecturas de distancia y estado de la máquina de navegación.
+\end{enumerate}
+
+% --- 2. Componentes a Usar ---
+\section{Componentes a Usar}
+
+La selección de partes aprovecha los sensores, módulos de potencia lógica y microcontroladores disponibles en el inventario del equipo, requiriendo únicamente la incorporación de la planta motriz y la fuente de energía:
+
+\subsection{Lista de Materiales (BOM)}
+\begin{table}[h!]
+\centering
+\small
+\begin{tabularx}{\textwidth}{l p{7.5cm} c}
+\toprule
+\textbf{Categoría} & \textbf{Componente y Especificación} & \textbf{Estado} \\
+\midrule
+Cómputo & Tarjeta de desarrollo ESP32 / ESP32-S3 (lógica 3.3V) & \textbf{Disponible} \\
+Sensórica & Módulo MPU6050 (Acelerómetro + Giróscopo 6-DOF) & \textbf{Disponible} \\
+Percepción & 2x Sensores de distancia Láser ToF VL53L0X & \textbf{Disponible} \\
+Driver & Módulo TB6612FNG (Doble puente H MOSFET 1.2A cont.) & \textbf{Disponible} \\
+\midrule
+Mecánica / Actuación & Kit Chasis 2WD (Base acrílica + 2 ruedas 65 mm + rueda loca + 2 motores TT 1:48) & Por adquirir \\
+Potencia & Celdas Li-Ion 18650 recargables (Pack 2S = 7.4V nominal) & Por adquirir \\
+Potencia & Portapilas 2S para 18650 con terminales & Por adquirir \\
+Regulación & Módulo Buck Step-Down DC-DC Mini MP1584EN o LM2596 & Por adquirir \\
+Misceláneos & Cables dupont, switch ON/OFF, espaciadores M3 & Por adquirir / Taller \\
+\bottomrule
+\end{tabularx}
+\caption{Lista de materiales clasificada según disponibilidad.}
+\label{tab:componentes}
+\end{table}
+
+\subsection{Justificación Técnica de los Componentes Principales}
+\begin{itemize}
+    \item \textbf{ESP32 / ESP32-S3 (Microcontrolador Unificado):} Microcontrolador dual-core Tensilica Xtensa 32-bit a $240\text{ MHz}$ con $520\text{ KB}$ de SRAM. Trabaja a nivel lógico de $3.3\text{ V}$ nativo, lo que coincide exactamente con los sensores MPU6050 y VL53L0X sin necesidad de adaptadores de nivel (\textit{level shifters}). El periférico LEDC provee PWM por hardware a $20\text{ kHz}$ eliminando zumbidos audibles en los motores.
+    \item \textbf{Driver TB6612FNG:} Reemplaza al obsoleto L298N. Al estar basado en MOSFETs de baja resistencia $R_{DS(on)}$, no genera caídas de voltaje de $2\text{ V}$ típicas de los transistores bipolares, no requiere disipadores de calor y soporta hasta $1.2\text{ A}$ continuos por canal ($3.2\text{ A}$ pico), más que suficiente para los motores TT.
+    \item \textbf{Sensores Láser ToF VL53L0X:} A diferencia de los sensores ultrasónicos HC-SR04 (que sufren rebotes acústicos, ecos fantasmas y un cono de apertura muy ancho), la tecnología Time-of-Flight emite pulsos de luz infrarroja de $940\text{ nm}$, midiendo la distancia con precisión milimétrica independiente del color o textura del obstáculo.
+    \item \textbf{Sensor Inercial MPU6050:} Aporta la lectura de velocidad angular ($\omega_z$) a $100\text{ Hz}$. Tras un proceso de calibración en reposo durante los primeros 2 segundos de encendido, permite compensar la deriva (\textit{drift}) y estabilizar el avance rectilíneo.
+    \item \textbf{Kit Chasis 2WD con Motores TT:} Provee el soporte estructural acrílico, las ruedas motrices de goma ($65\text{ mm}$), la rueda loca de apoyo y los dos motores reductores TT con relación $1:48$ que deben adquirirse para completar la motricidad del robot.
+\end{itemize}
+
+\end{document}
