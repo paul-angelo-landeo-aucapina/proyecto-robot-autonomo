@@ -1,69 +1,40 @@
-# Documentación y Arquitectura del Sistema — Robot Móvil 2WD
-
-Este directorio centraliza la documentación técnica, especificaciones mecatrónicas y esquemas de conexionado del **Robot Móvil Autónomo 2WD**.
+# Robot Móvil Autónomo con Estabilización Inercial y Evasión Reactiva de Obstáculos
 
 ---
 
-## 1. Especificación Técnica en LaTeX
+## 1. Descripción del Proyecto
 
-La memoria técnica formal del proyecto se encuentra disponible en formato LaTeX listo para compilar:
-- **Archivo fuente:** [`proyecto_robot_2wd.tex`](./proyecto_robot_2wd.tex)
-- **Contenido del documento:**
-  - Descripción y objetivos operativos del robot (avance rectilíneo estabilizado por giroscopio, evasión reactiva con sensores ToF, frenado de emergencia).
-  - Lista de componentes requeridos y estado de inventario (hardware disponible vs por adquirir).
-  - Justificación técnica de cada componente (ESP32, TB6612FNG, MPU6050, VL53L0X, Chasis 2WD).
+El proyecto consiste en el diseño, desarrollo e integración de una plataforma robótica móvil autónoma de configuración diferencial (2WD + rueda loca posterior) orientada a la navegación en interiores. El robot opera de forma completamente autónoma en tiempo real, ejecutando tareas de exploración de entornos, mantenimiento de rumbo y evasión dinámica de obstáculos.
 
-Para compilarlo a PDF en un entorno local con TeX Live:
-```bash
-pdflatex proyecto_robot_2wd.tex
-```
-O cargando directamente el archivo `.tex` en plataformas como [Overleaf](https://www.overleaf.com/).
+### Objetivos Operativos y Funcionales
+1. **Desplazamiento Rectilíneo Estabilizado (*Heading Hold*):** Los motores reductores de bajo costo (tipo TT amarillos) presentan asimetrías mecánicas que desvían al vehículo. El robot emplea el giróscopo del sensor inercial **MPU6050 (eje Z)** para computar el error angular acumulado respecto al rumbo deseado y corregir el PWM diferencial en tiempo real mediante un controlador Proporcional-Integral (PI), garantizando trayectorias rectas precisas sin requerir encoders mecánicos de rueda.
+2. **Percepción Frontal y Evasión Reactiva:** Mediante dos sensores de tiempo de vuelo **VL53L0X (ToF)**, el robot mide la distancia milimétrica hacia obstáculos en los sectores frontales izquierdo y derecho. Si un obstáculo ingresa en la zona de frenado ($< 180\text{ mm}$), la máquina de estados detiene la marcha, evalúa cuál lado tiene mayor espacio libre, y ejecuta un giro pivote calibrado sobre su propio eje (ej. $\pm 90^\circ$) monitoreado por el giróscopo antes de reanudar el avance.
+3. **Parada de Emergencia y Retroceso de Seguridad:** En caso de detectar una barrera crítica imprevista a menos de $80\text{ mm}$, el robot ejecuta un frenado electrónico activo (*active braking*) por puente H, retrocede $250\text{ ms}$ para liberar el cono de detección y rota en búsqueda de un corredor despejado.
+4. **Telemetría y Control Bidireccional:** El microcontrolador emite diagnósticos continuos a $50\text{ Hz}$ por puerto serial (y expandible a WebSockets/Wi-Fi nativo del ESP32), informando el ángulo de orientación, velocidad angular, lecturas de distancia y estado de la máquina de navegación.
 
 ---
 
-## 2. Arquitectura General del Sistema
+## 2. Componentes a Usar
 
-El robot implementa una arquitectura modular unificada bajo un único microcontrolador ESP32:
+La selección de partes aprovecha los sensores, módulos de potencia lógica y microcontroladores disponibles en el inventario del equipo, requiriendo únicamente la incorporación de la planta motriz y la fuente de energía:
 
-```mermaid
-graph TD
-    subgraph Potencia ["Etapa de Potencia y Regulación"]
-        Bat["Baterías 2S 18650 (7.4V)"] --> SW["Interruptor ON/OFF"]
-        SW --> VM["Driver TB6612FNG: Pin VM (7.4V)"]
-        SW --> Buck["Módulo Buck DC-DC (5.0V)"]
-        Buck --> VIN["ESP32: Pin VIN"]
-    end
+### Lista de Materiales (BOM)
 
-    subgraph Computo ["Cómputo y Control Embebido"]
-        ESP32["ESP32 (WROOM-32 / S3)"]
-        ESP32 -->|3.3V Out| BusVCC["Riel Lógico 3.3V"]
-        BusVCC --> TB_VCC["TB6612FNG: VCC"]
-        BusVCC --> IMU["MPU6050"]
-        BusVCC --> ToF1["ToF 1 (VL53L0X Izq)"]
-        BusVCC --> ToF2["ToF 2 (VL53L0X Der)"]
-    end
+| Categoría | Componente y Especificación | Estado |
+|---|---|:---:|
+| **Cómputo** | Tarjeta de desarrollo ESP32 / ESP32-S3 (lógica 3.3V) | **Disponible** |
+| **Sensórica** | Módulo MPU6050 (Acelerómetro + Giróscopo 6-DOF) | **Disponible** |
+| **Percepción** | 2x Sensores de distancia Láser ToF VL53L0X | **Disponible** |
+| **Driver** | Módulo TB6612FNG (Doble puente H MOSFET 1.2A cont.) | **Disponible** |
+| **Mecánica / Actuación** | Kit Chasis 2WD (Base acrílica + 2 ruedas 65 mm + rueda loca + 2 motores TT 1:48) | Por adquirir |
+| **Potencia** | Celdas Li-Ion 18650 recargables (Pack 2S = 7.4V nominal) | Por adquirir |
+| **Potencia** | Portapilas 2S para 18650 con terminales | Por adquirir |
+| **Regulación** | Módulo Buck Step-Down DC-DC Mini MP1584EN o LM2596 | Por adquirir |
+| **Misceláneos** | Cables dupont, switch ON/OFF, espaciadores M3 | Por adquirir / Taller |
 
-    subgraph ActuacionSensórica ["Actuación y Sensórica"]
-        ESP32 -->|I2C SDA:21 / SCL:22| IMU
-        ESP32 -->|I2C SDA:21 / SCL:22| ToF1
-        ESP32 -->|I2C SDA:21 / SCL:22| ToF2
-        ESP32 -->|XSHUT1: GPIO32| ToF1
-        ESP32 -->|XSHUT2: GPIO33| ToF2
-        ESP32 -->|PWM & DIR| TB6612FNG["Driver TB6612FNG"]
-        TB6612FNG --> MotL["Motor TT Izquierdo"]
-        TB6612FNG --> MotR["Motor TT Derecho"]
-    end
-```
-
----
-
-## 3. Asignación de Pines (Pinout Resumido)
-
-| Periférico | Pin ESP32 | Función |
-|---|---|---|
-| **Bus I2C** | GPIO 21 (SDA), GPIO 22 (SCL) | Comunicación con MPU6050 (0x68) y ToF (0x30, 0x29) |
-| **ToF Izquierdo** | GPIO 32 | Pin `XSHUT` (reasignación dinámica de dirección a 0x30) |
-| **ToF Derecho** | GPIO 33 | Pin `XSHUT` (habilitación con dirección por defecto 0x29) |
-| **TB6612FNG (Standby)** | GPIO 25 | Pin `STBY` (HIGH = activo) |
-| **Motor Izquierdo** | GPIO 18 (PWMA), GPIO 19 (AIN1), GPIO 23 (AIN2) | Control de velocidad (LEDC 20 kHz) y dirección |
-| **Motor Derecho** | GPIO 5 (PWMB), GPIO 17 (BIN1), GPIO 16 (BIN2) | Control de velocidad (LEDC 20 kHz) y dirección |
+### Justificación Técnica de los Componentes Principales
+- **ESP32 / ESP32-S3 (Microcontrolador Unificado):** Microcontrolador dual-core Tensilica Xtensa 32-bit a $240\text{ MHz}$ con $520\text{ KB}$ de SRAM. Trabaja a nivel lógico de $3.3\text{ V}$ nativo, lo que coincide exactamente con los sensores MPU6050 y VL53L0X sin necesidad de adaptadores de nivel (*level shifters*). El periférico LEDC provee PWM por hardware a $20\text{ kHz}$ eliminando zumbidos audibles en los motores.
+- **Driver TB6612FNG:** Reemplaza al obsoleto L298N. Al estar basado en MOSFETs de baja resistencia $R_{DS(on)}$, no genera caídas de voltaje de $2\text{ V}$ típicas de los transistores bipolares, no requiere disipadores de calor y soporta hasta $1.2\text{ A}$ continuos por canal ($3.2\text{ A}$ pico), más que suficiente para los motores TT.
+- **Sensores Láser ToF VL53L0X:** A diferencia de los sensores ultrasónicos HC-SR04 (que sufren rebotes acústicos, ecos fantasmas y un cono de apertura muy ancho), la tecnología Time-of-Flight emite pulsos de luz infrarroja de $940\text{ nm}$, midiendo la distancia con precisión milimétrica independiente del color o textura del obstáculo.
+- **Sensor Inercial MPU6050:** Aporta la lectura de velocidad angular ($\omega_z$) a $100\text{ Hz}$. Tras un proceso de calibración en reposo durante los primeros 2 segundos de encendido, permite compensar la deriva (*drift*) y estabilizar el avance rectilíneo.
+- **Kit Chasis 2WD con Motores TT:** Provee el soporte estructural acrílico, las ruedas motrices de goma ($65\text{ mm}$), la rueda loca de apoyo y los dos motores reductores TT con relación $1:48$ que deben adquirirse para completar la motricidad del robot.
