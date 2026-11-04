@@ -1,0 +1,287 @@
+<?xml version="1.0"?>
+<robot name="robot_autonomo_esp32" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ================================================================= -->
+  <!-- 1. MATERIALES Y PROPIEDADES FISICAS                               -->
+  <!-- ================================================================= -->
+  <material name="blue">
+    <color rgba="0.1 0.3 0.8 1.0"/>
+  </material>
+  <material name="yellow">
+    <color rgba="0.9 0.8 0.1 1.0"/>
+  </material>
+  <material name="black">
+    <color rgba="0.05 0.05 0.05 1.0"/>
+  </material>
+  <material name="red">
+    <color rgba="0.8 0.1 0.1 1.0"/>
+  </material>
+
+  <!-- ================================================================= -->
+  <!-- 2. CHASIS BASE ACRILICO                                           -->
+  <!-- ================================================================= -->
+  <link name="base_footprint"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0.0325" rpy="0 0 0"/>
+  </joint>
+
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.20 0.14 0.005"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.20 0.14 0.005"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.45"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.002" iyz="0" izz="0.003"/>
+    </inertial>
+  </link>
+
+  <!-- ================================================================= -->
+  <!-- 3. RUEDAS MOTRICES (65 mm de diametro = radio 0.0325 m)           -->
+  <!-- ================================================================= -->
+  <!-- Rueda Izquierda -->
+  <link name="wheel_left">
+    <visual>
+      <geometry>
+        <cylinder radius="0.0325" length="0.026"/>
+      </geometry>
+      <material name="yellow"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="0.0325" length="0.026"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.05"/>
+      <inertia ixx="0.00002" ixy="0" ixz="0" iyy="0.00002" iyz="0" izz="0.00003"/>
+    </inertial>
+  </link>
+
+  <joint name="joint_wheel_left" type="continuous">
+    <parent link="base_link"/>
+    <child link="wheel_left"/>
+    <origin xyz="0.04 0.08 0" rpy="-1.5708 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <!-- Rueda Derecha -->
+  <link name="wheel_right">
+    <visual>
+      <geometry>
+        <cylinder radius="0.0325" length="0.026"/>
+      </geometry>
+      <material name="yellow"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="0.0325" length="0.026"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.05"/>
+      <inertia ixx="0.00002" ixy="0" ixz="0" iyy="0.00002" iyz="0" izz="0.00003"/>
+    </inertial>
+  </link>
+
+  <joint name="joint_wheel_right" type="continuous">
+    <parent link="base_link"/>
+    <child link="wheel_right"/>
+    <origin xyz="0.04 -0.08 0" rpy="-1.5708 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <!-- Rueda Loca Posterior (Caster Ball) -->
+  <link name="caster_wheel">
+    <visual>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry>
+        <sphere radius="0.015"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.02"/>
+      <inertia ixx="0.000002" ixy="0" ixz="0" iyy="0.000002" iyz="0" izz="0.000002"/>
+    </inertial>
+  </link>
+
+  <joint name="joint_caster" type="fixed">
+    <parent link="base_link"/>
+    <child link="caster_wheel"/>
+    <origin xyz="-0.07 0 -0.0175" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ================================================================= -->
+  <!-- 4. SENSORES ToF VL53L0X (Frontal Izquierdo y Derecho)             -->
+  <!-- ================================================================= -->
+  <link name="tof_left_link">
+    <visual>
+      <geometry><box size="0.01 0.02 0.01"/></geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+
+  <joint name="joint_tof_left" type="fixed">
+    <parent link="base_link"/>
+    <child link="tof_left_link"/>
+    <origin xyz="0.10 0.04 0.02" rpy="0 0 0.1745"/> <!-- Angulado 10 deg -->
+  </joint>
+
+  <link name="tof_right_link">
+    <visual>
+      <geometry><box size="0.01 0.02 0.01"/></geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+
+  <joint name="joint_tof_right" type="fixed">
+    <parent link="base_link"/>
+    <child link="tof_right_link"/>
+    <origin xyz="0.10 -0.04 0.02" rpy="0 0 -0.1745"/> <!-- Angulado -10 deg -->
+  </joint>
+
+  <!-- ================================================================= -->
+  <!-- 5. PLUGINS DE GAZEBO                                              -->
+  <!-- ================================================================= -->
+  <!-- Plugin de Traccion Diferencial 2WD -->
+  <gazebo>
+    <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
+      <update_rate>50</update_rate>
+      <left_joint>joint_wheel_left</left_joint>
+      <right_joint>joint_wheel_right</right_joint>
+      <wheel_separation>0.16</wheel_separation>
+      <wheel_diameter>0.065</wheel_diameter>
+      <max_wheel_torque>1.5</max_wheel_torque>
+      <max_wheel_acceleration>2.0</max_wheel_acceleration>
+      <command_topic>cmd_vel</command_topic>
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+      <publish_wheel_tf>true</publish_wheel_tf>
+      <odometry_topic>odom</odometry_topic>
+      <odometry_frame>odom</odometry_frame>
+      <robot_base_frame>base_footprint</robot_base_frame>
+    </plugin>
+  </gazebo>
+
+  <!-- Plugin IMU MPU6050 (100 Hz con ruido gaussiano) -->
+  <gazebo reference="base_link">
+    <sensor name="mpu6050_imu" type="imu">
+      <always_on>true</always_on>
+      <update_rate>100</update_rate>
+      <plugin name="imu_plugin" filename="libgazebo_ros_imu_sensor.so">
+        <ros>
+          <remapping>~/out:=/imu/data</remapping>
+        </ros>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- Plugin Ray / ToF Izquierdo -->
+  <gazebo reference="tof_left_link">
+    <sensor type="ray" name="vl53l0x_left">
+      <always_on>true</always_on>
+      <update_rate>50</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>5</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.218</min_angle>
+            <max_angle>0.218</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.02</min>
+          <max>2.0</max>
+          <resolution>0.001</resolution>
+        </range>
+      </ray>
+      <plugin name="tof_left_controller" filename="libgazebo_ros_ray_sensor.so">
+        <ros>
+          <remapping>~/out:=/distance/left</remapping>
+        </ros>
+        <output_type>sensor_msgs/Range</output_type>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- Plugin Ray / ToF Derecho -->
+  <gazebo reference="tof_right_link">
+    <sensor type="ray" name="vl53l0x_right">
+      <always_on>true</always_on>
+      <update_rate>50</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>5</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.218</min_angle>
+            <max_angle>0.218</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.02</min>
+          <max>2.0</max>
+          <resolution>0.001</resolution>
+        </range>
+      </ray>
+      <plugin name="tof_right_controller" filename="libgazebo_ros_ray_sensor.so">
+        <ros>
+          <remapping>~/out:=/distance/right</remapping>
+        </ros>
+        <output_type>sensor_msgs/Range</output_type>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- ================================================================= -->
+  <!-- 6. PROPIEDADES DE FRICCION ODE (Para subida/bajada de rampa y plano)-->
+  <!-- ================================================================= -->
+  <!-- Rueda Izquierda: Goma de 65mm con alto agarre -->
+  <gazebo reference="wheel_left">
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.1</maxVel>
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+  <!-- Rueda Derecha: Goma de 65mm con alto agarre -->
+  <gazebo reference="wheel_right">
+    <mu1>1.5</mu1>
+    <mu2>1.5</mu2>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.1</maxVel>
+    <material>Gazebo/Yellow</material>
+  </gazebo>
+
+  <!-- Rueda Loca Posterior: Esfera de bajo coeficiente de friccion -->
+  <gazebo reference="caster_wheel">
+    <mu1>0.001</mu1>
+    <mu2>0.001</mu2>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+</robot>

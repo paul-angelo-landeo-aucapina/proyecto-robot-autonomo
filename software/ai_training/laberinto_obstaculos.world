@@ -1,0 +1,78 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="mundo_evaluacion_robot">
+    
+    <!-- Iluminacion y gravedad -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <!-- Propiedades del motor de fisica ODE -->
+    <physics type="ode">
+      <max_step_size>0.002</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>500</real_time_update_rate>
+    </physics>
+
+    <!-- Paredes del recinto cerrado (Recinto 4m x 4m) -->
+    <model name="pared_norte">
+      <static>true</static>
+      <pose>0 2.0 0.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>4.2 0.1 0.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>4.2 0.1 0.5</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <model name="pared_sur">
+      <static>true</static>
+      <pose>0 -2.0 0.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>4.2 0.1 0.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>4.2 0.1 0.5</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <model name="pared_este">
+      <static>true</static>
+      <pose>2.0 0 0.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.1 4.0 0.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.1 4.0 0.5</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <model name="pared_oeste">
+      <static>true</static>
+      <pose>-2.0 0 0.25 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.1 4.0 0.5</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.1 4.0 0.5</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <!-- Obstaculo frontal 1 (Para probar frenado a 180 mm y giro) -->
+    <model name="bloque_frontal_1">
+      <static>true</static>
+      <pose>0.8 0.1 0.2 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>0.3 0.3 0.4</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>0.3 0.3 0.4</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <!-- Obstaculo 2 (Para probar emergencia < 80 mm en curva) -->
+    <model name="bloque_lateral_2">
+      <static>true</static>
+      <pose>0.8 -0.8 0.2 0 0 0.785</pose>
+      <link name="link">
+        <collision name="col"><geometry><cylinder><radius>0.15</radius><length>0.4</length></cylinder></geometry></collision>
+        <visual name="vis"><geometry><cylinder><radius>0.15</radius><length>0.4</length></cylinder></geometry></visual>
+      </link>
+    </model>
+
+  </world>
+</sdf>

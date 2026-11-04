@@ -1,0 +1,75 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="piso_plano_entrenamiento">
+    
+    <!-- Iluminacion y plano de suelo -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <!-- Parametros de fisica para piso plano liso -->
+    <physics type="ode">
+      <max_step_size>0.002</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>500</real_time_update_rate>
+    </physics>
+
+    <!-- Marcador visual del Punto Objetivo B (1.5m, 0.8m) -->
+    <model name="objetivo_punto_b">
+      <static>true</static>
+      <pose>1.5 0.8 0.005 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>0.08</radius>
+              <length>0.01</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0 1 0 1</ambient>
+            <diffuse>0 1 0 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Obstaculo intermedio 1 (Cilindro para probar desvio a 180 mm) -->
+    <model name="obstaculo_1">
+      <static>true</static>
+      <pose>0.8 0.25 0.2 0 0 0</pose>
+      <link name="link">
+        <collision name="col">
+          <geometry><cylinder><radius>0.12</radius><length>0.4</length></cylinder></geometry>
+        </collision>
+        <visual name="vis">
+          <geometry><cylinder><radius>0.12</radius><length>0.4</length></cylinder></geometry>
+          <material><ambient>1 0 0 1</ambient><diffuse>1 0 0 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Obstaculo 2 (Caja que fuerza decision de giro pivote) -->
+    <model name="obstaculo_2">
+      <static>true</static>
+      <pose>1.1 0.65 0.2 0 0 0</pose>
+      <link name="link">
+        <collision name="col">
+          <geometry><box><size>0.25 0.25 0.4</size></box></geometry>
+        </collision>
+        <visual name="vis">
+          <geometry><box><size>0.25 0.25 0.4</size></box></geometry>
+          <material><ambient>0.8 0.4 0 1</ambient><diffuse>0.8 0.4 0 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Paredes perimetrales del recinto de pruebas -->
+    <model name="pared_frontal"><static>true</static><pose>2.5 0 0.2 0 0 0</pose><link name="l"><collision name="c"><geometry><box><size>0.1 3.0 0.4</size></box></geometry></collision><visual name="v"><geometry><box><size>0.1 3.0 0.4</size></box></geometry></visual></link></model>
+    <model name="pared_trasera"><static>true</static><pose>-1.0 0 0.2 0 0 0</pose><link name="l"><collision name="c"><geometry><box><size>0.1 3.0 0.4</size></box></geometry></collision><visual name="v"><geometry><box><size>0.1 3.0 0.4</size></box></geometry></visual></link></model>
+
+  </world>
+</sdf>
