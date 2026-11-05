@@ -1,0 +1,14 @@
+{
+    "estado": "ENTRENAMIENTO_COMPLETADO",
+    "total_episodios": 100,
+    "tasa_exito_final": "100.0%",
+    "ganancias_optimas": {
+        "Kp_heading_hold": 2.844,
+        "Ki_heading_hold": 0.365,
+        "velocidad_nominal_ms": 0.25,
+        "velocidad_pivote_rads": 1.6,
+        "distancia_frenado_m": 0.18,
+        "distancia_parada_critica_m": 0.08,
+        "tiempo_retroceso_s": 0.25
+    }
+}
