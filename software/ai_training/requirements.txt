@@ -1,0 +1,6 @@
+# Dependencias para entrenamiento de IA, RL y simulación robótica
+torch>=2.2.0
+numpy>=1.26.0
+matplotlib>=3.8.0
+scipy>=1.12.0
+tensorboard>=2.15.0

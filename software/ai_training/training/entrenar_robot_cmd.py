@@ -90,6 +90,8 @@ def entrenar_robot(total_episodes=100):
 
     # Exportar resultados
     script_dir = os.path.dirname(os.path.abspath(__file__))
+    policies_dir = os.path.join(os.path.dirname(script_dir), "policies")
+    os.makedirs(policies_dir, exist_ok=True)
     
     resultados = {
         "estado": "ENTRENAMIENTO_COMPLETADO",
@@ -106,11 +108,11 @@ def entrenar_robot(total_episodes=100):
         }
     }
     
-    json_path = os.path.join(script_dir, "politica_entrenada_robot.json")
+    json_path = os.path.join(policies_dir, "politica_entrenada_robot.json")
     with open(json_path, "w") as f:
         json.dump(resultados, f, indent=4)
 
-    cpp_header_path = os.path.join(script_dir, "politica_optima_esp32.h")
+    cpp_header_path = os.path.join(policies_dir, "politica_optima_esp32.h")
     with open(cpp_header_path, "w") as f:
         f.write("// ==========================================================\n")
         f.write("// PARAMETROS DE CONTROL OPTIMIZADOS PARA ESP32 (ENTRENADOS)\n")
