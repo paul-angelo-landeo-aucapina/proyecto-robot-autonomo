@@ -46,8 +46,8 @@ hardware/mechanics/
 │   │   └── ensamblaje_completo_2wd.stl
 │   └── generate_freecad_2wd.py # Script de generación y validación FreeCAD
 ├── calculations/
-│   ├── CalculosMatematicosyFisicosRobot.ipynb # Memoria interactiva Jupyter con gráficos
-│   └── curvas_rendimiento_robot_2wd.png       # Curvas de tracción, corriente y flexión
+│   ├── simulacion_fisica_robot_2wd.py   # Script autónomo de cálculo analítico y curvas
+│   └── curvas_rendimiento_robot_2wd.png # Curvas de tracción, corriente y flexión
 └── README.md
 ```
 
@@ -79,3 +79,13 @@ flatpak run --filesystem=/home/paul --command=FreeCADCmd org.freecad.FreeCAD har
 - **Plato Porta-Objetos (`plato_porta_objetos_2wd.stl`):**
   - Material: PETG o ABS (resistente a impactos).
   - 4 perímetros de pared, relleno $25\%$, orientación plana sobre la base del plato (no requiere soportes).
+
+### D. Simulación Física y Dinámica en Python Local
+Para calcular los esfuerzos mecánicos, la carga admisible y regenerar las curvas de rendimiento sin depender de Colab ni Jupyter:
+```bash
+python3 hardware/mechanics/calculations/simulacion_fisica_robot_2wd.py --payload 1.0
+```
+Opciones adicionales:
+- `--payload <kg>`: Evalúa un peso específico en la bandeja superior (ej. 1.2 kg).
+- `--no-plot`: Ejecuta únicamente el informe analítico en consola sin renderizar Matplotlib.
+- `--output-img <ruta>`: Especifica la ruta destino para guardar las curvas en PNG.
